@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="admin-login-section">
+    <div class="admin-login-card">
+        <span class="eyebrow">Espace lecteur</span>
+        <h1>Connexion</h1>
+        <p>Connectez-vous pour commander un livre et suivre vos commandes.</p>
+
+        <form method="post" class="dashboard-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% if form.non_field_errors %}
+            <div class="login-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="dashboard-field">
+                <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="dashboard-field">
+                <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button class="btn btn-primary" type="submit">Se connecter</button>
+        </form>
+        <p class="account-prompt">Pas encore de compte ? <a href="{% url 'customer_signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Créer un compte</a></p>
+    </div>
+</section>
+{% endblock %}

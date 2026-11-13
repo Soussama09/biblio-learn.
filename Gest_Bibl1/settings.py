@@ -55,7 +55,10 @@ ROOT_URLCONF = 'Gest_Bibl1.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / "templates",
+            BASE_DIR / "Gest_Bibl1" / "Templates",
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

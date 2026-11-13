@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Commander {{ book.title }} | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container narrow">
+        <span class="eyebrow">Votre commande</span>
+        <h1>Confirmer le livre</h1>
+        <p>Vérifiez les informations avant d’enregistrer votre commande.</p>
+    </div>
+</section>
+
+<section class="section order-section">
+    <div class="container order-confirm-card">
+        <div>
+            <span class="chip">{{ book.category.name }}</span>
+            <h2>{{ book.title }}</h2>
+            <p>Par {{ book.author }}</p>
+            <p class="book-price">{{ book.price|floatformat:2 }} MAD / livre</p>
+        </div>
+        <div class="payment-notice" role="status">
+            Le paiement CMI n’est pas encore configuré. Cette action enregistre une commande en attente, mais ne débite pas votre compte.
+        </div>
+        <form method="post" class="dashboard-form">
+            {% csrf_token %}
+            <div class="dashboard-field">
+                {{ form.quantity.label_tag }}
+                {{ form.quantity }}
+                {% for error in form.quantity.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button class="btn btn-primary" type="submit">Enregistrer la commande</button>
+            <a class="btn btn-secondary" href="{% url 'livres' %}">Retour au catalogue</a>
+        </form>
+    </div>
+</section>
+{% endblock %}

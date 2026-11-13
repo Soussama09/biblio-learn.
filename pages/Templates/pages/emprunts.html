@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Emprunts | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container narrow">
+        <span class="eyebrow">Espace lecteur</span>
+        <h1>Mes emprunts</h1>
+        <p>Envoyez une demande d’emprunt et suivez son traitement par l’administration.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container loan-page-grid">
+        {% if messages %}
+        <div class="dashboard-messages" role="status">
+            {% for message in messages %}
+            <p class="dashboard-message">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="dashboard-panel loan-request-panel">
+            <div class="dashboard-panel-heading">
+                <span class="eyebrow">Nouvelle demande</span>
+                <h2>Demander un livre</h2>
+                <p>Les demandes sont envoyées à l’administration. Une période de prêt de 14 jours commence après acceptation.</p>
+            </div>
+            <form method="post" class="dashboard-form">
+                {% csrf_token %}
+                <div class="dashboard-field">
+                    {{ form.book.label_tag }}
+                    {{ form.book }}
+                    {% for error in form.book.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% if not available_books_count %}
+                <p class="form-hint">Aucun livre disponible pour le moment.</p>
+                {% endif %}
+                <button class="btn btn-primary" type="submit" {% if not available_books_count %}disabled{% endif %}>Envoyer la demande</button>
+            </form>
+        </section>
+
+        <section class="dashboard-panel">
+            <div class="dashboard-panel-heading">
+                <span class="eyebrow">Mon historique</span>
+                <h2>Mes demandes d’emprunt</h2>
+            </div>
+            <div class="dashboard-table-wrap">
+                <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Livre</th>
+                    <th>Demandé le</th>
+                    <th>À rendre le</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr>
+                    <td>{{ loan.book }}</td>
+                    <td>{{ loan.requested_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ loan.due_date|date:"d/m/Y"|default:"—" }}</td>
+                    <td><span class="status status-{{ loan.status }}">{{ loan.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="dashboard-empty">Vous n’avez pas encore de demande.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

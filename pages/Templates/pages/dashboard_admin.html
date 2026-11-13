@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard admin | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container dashboard-heading">
+        <span class="eyebrow">Espace administration</span>
+        <h1>Gestion de la bibliothèque</h1>
+        <p>Bonjour {{ request.user.get_short_name|default:request.user.username }}, ajoutez un livre et suivez votre catalogue.</p>
+        <form method="post" action="{% url 'dashboard_logout' %}" class="dashboard-logout">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Se déconnecter</button>
+        </form>
+    </div>
+</section>
+
+<nav class="admin-dashboard-nav" aria-label="Navigation du tableau de bord">
+    <div class="container admin-dashboard-nav-inner">
+        <a href="#overview">Vue d’ensemble</a>
+        <a href="#catalogue">Livres</a>
+        <a href="#categories">Catégories</a>
+        <a href="#libraries">Bibliothèques</a>
+        <a href="#orders">Commandes</a>
+        <a href="#loans">Emprunts</a>
+    </div>
+</nav>
+
+<section class="section dashboard-section">
+    <div class="container">
+        {% if messages %}
+        <div class="dashboard-messages" role="status">
+            {% for message in messages %}
+            <p class="dashboard-message">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="stats-grid dashboard-stats" id="overview">
+            <article class="stat-card">
+                <span>Total des livres</span>
+                <strong>{{ total_books }}</strong>
+                <small>Dans le catalogue</small>
+            </article>
+            <article class="stat-card">
+                <span>Catégories</span>
+                <strong>{{ total_categories }}</strong>
+                <small>Pour organiser les livres</small>
+            </article>
+            <article class="stat-card">
+                <span>Disponibles</span>
+                <strong>{{ available_books }}</strong>
+                <small>Prêts à être empruntés</small>
+            </article>
+            <article class="stat-card">
+                <span>Empruntés</span>
+                <strong>{{ borrowed_books }}</strong>
+                <small>Actuellement en circulation</small>
+            </article>
+            <article class="stat-card">
+                <span>Commandes</span>
+                <strong>{{ total_orders }}</strong>
+                <small>À suivre</small>
+            </article>
+            <article class="stat-card">
+                <span>Demandes d'emprunt</span>
+                <strong>{{ pending_loans }}</strong>
+                <small>En attente de traitement</small>
+            </article>
+            <article class="stat-card">
+                <span>Bibliothèques</span>
+                <strong>{{ total_libraries }}</strong>
+                <small>Sites enregistrés</small>
+            </article>
+        </div>
+
+        <div class="dashboard-layout">
+            <div class="dashboard-sidebar">
+                <section class="dashboard-panel add-book-panel">
+                    <div class="dashboard-panel-heading">
+                        <span class="eyebrow">Nouveau livre</span>
+                        <h2>Ajouter au catalogue</h2>
+                        <p>Complétez les informations du livre puis enregistrez-le.</p>
+                    </div>
+
+                    <form method="post" class="dashboard-form" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_book">
+                        {% for field in form %}
+                        <div class="dashboard-field">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% for error in field.errors %}
+                            <span class="form-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                        {% if not total_categories %}
+                        <p class="form-hint">Ajoutez d’abord une catégorie pour pouvoir enregistrer un livre.</p>
+                        {% endif %}
+                        <button class="btn btn-primary" type="submit" {% if not total_categories %}disabled{% endif %}>Ajouter le livre</button>
+                    </form>
+                </section>
+
+                <section class="dashboard-panel category-panel" id="categories">
+                    <div class="dashboard-panel-heading">
+                        <span class="eyebrow">Organisation</span>
+                        <h2>Catégories</h2>
+                        <p>Créez les catégories proposées dans le formulaire des livres.</p>
+                    </div>
+                    <form method="post" class="dashboard-form" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_category">
+                        <div class="dashboard-field">
+                            {{ category_form.name.label_tag }}
+                            {{ category_form.name }}
+                            {% for error in category_form.name.errors %}
+                            <span class="form-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-secondary" type="submit">Ajouter la catégorie</button>
+                    </form>
+                    <ul class="category-list">
+                        {% for category in categories %}
+                        <li>
+                            <span>{{ category.name }}</span>
+                            <small>{{ category.book_count }} livre{{ category.book_count|pluralize:"s" }}</small>
+                        </li>
+                        {% empty %}
+                        <li class="category-empty">Aucune catégorie créée.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            </div>
+
+            <section class="dashboard-panel catalogue-panel" id="catalogue">
+                <div class="dashboard-panel-heading">
+                    <span class="eyebrow">Catalogue</span>
+                    <h2>Livres enregistrés</h2>
+                    <p>Les livres ajoutés ici apparaissent dans le catalogue public.</p>
+                </div>
+
+                <div class="dashboard-table-wrap">
+                    <table class="data-table dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Livre</th>
+                                <th>Catégorie</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                            <tr>
+                                <td>
+                                    <strong>{{ book.title }}</strong>
+                                    <small>{{ book.author }}</small>
+                                </td>
+                                <td>{{ book.category.name }}</td>
+                                <td><span class="status status-{{ book.status }}">{{ book.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="dashboard-empty">Aucun livre pour le moment. Ajoutez le premier avec le formulaire.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <section class="dashboard-panel libraries-panel" id="libraries">
+            <div class="dashboard-panel-heading">
+                <span class="eyebrow">Réseau</span>
+                <h2>Gérer les bibliothèques</h2>
+                <p>Ajoutez les bibliothèques et leurs coordonnées.</p>
+            </div>
+
+            <div class="library-management">
+                <form method="post" class="dashboard-form" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_library">
+                    {% for field in library_form %}
+                    <div class="dashboard-field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                        <span class="form-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <button class="btn btn-primary" type="submit">Ajouter la bibliothèque</button>
+                </form>
+
+                <div class="dashboard-table-wrap">
+                    <table class="data-table dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Bibliothèque</th>
+                                <th>Adresse</th>
+                                <th>Téléphone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for library in libraries %}
+                            <tr>
+                                <td>
+                                    <strong>{{ library.name }}</strong>
+                                    <small>{{ library.city }}</small>
+                                </td>
+                                <td>{{ library.address }}</td>
+                                <td>{{ library.phone|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="dashboard-empty">Aucune bibliothèque enregistrée.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-panel orders-panel" id="orders">
+            <div class="dashboard-panel-heading">
+                <span class="eyebrow">Achats</span>
+                <h2>Commandes récentes</h2>
+                <p>Les commandes des clients apparaissent ici. Le paiement CMI reste inactif jusqu’à la configuration du compte marchand.</p>
+            </div>
+            <div class="dashboard-table-wrap">
+                <table class="data-table dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Client</th>
+                            <th>Livre</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                            <th>Commande</th>
+                            <th>Paiement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.customer.username }}</td>
+                            <td>{{ order.book.title }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td>{{ order.total_price|floatformat:2 }} MAD</td>
+                            <td><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                            <td><span class="status status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="dashboard-empty">Aucune commande pour le moment.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if total_orders > 20 %}
+            <p class="form-hint">Les 20 commandes les plus récentes sont affichées. Consultez l’administration Django pour la liste complète.</p>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel orders-panel" id="loans">
+            <div class="dashboard-panel-heading">
+                <span class="eyebrow">Prêts</span>
+                <h2>Demandes d'emprunt</h2>
+                <p>Acceptez ou refusez les nouvelles demandes. Après acceptation, le retour est prévu sous 14 jours.</p>
+            </div>
+            <div class="dashboard-table-wrap">
+                <table class="data-table dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Lecteur</th>
+                            <th>Livre</th>
+                            <th>Demandé le</th>
+                            <th>Retour prévu</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                        <tr>
+                            <td>#{{ loan.id }}</td>
+                            <td>{{ loan.customer.username }}</td>
+                            <td>{{ loan.book.title }}</td>
+                            <td>{{ loan.requested_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ loan.due_date|date:"d/m/Y"|default:"—" }}</td>
+                            <td><span class="status status-{{ loan.status }}">{{ loan.get_status_display }}</span></td>
+                            <td class="loan-actions">
+                                {% if loan.status == "pending" %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                    <button class="btn btn-primary" type="submit" name="action" value="approve_loan">Accepter</button>
+                                </form>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                    <button class="btn btn-secondary" type="submit" name="action" value="reject_loan">Refuser</button>
+                                </form>
+                                {% elif loan.status == "approved" %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                    <button class="btn btn-secondary" type="submit" name="action" value="return_loan">Confirmer le retour</button>
+                                </form>
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="dashboard-empty">Aucune demande d'emprunt pour le moment.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if total_loans > 50 %}
+            <p class="form-hint">Les 50 demandes les plus récentes sont affichées.</p>
+            {% endif %}
+        </section>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div class="hero-copy">
+            <span class="eyebrow">Bibliothèque moderne · {{ nom_projet }}</span>
+            <h1>Des lectures qui inspirent chaque journée.</h1>
+            <p>
+                BiblioLearn accompagne les lecteurs, étudiants et passionnés avec un catalogue
+                pensé pour faciliter l'accès, le suivi des emprunts et la découverte de nouveaux
+                univers.
+            </p>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="{% url 'livres' %}">Découvrir le catalogue</a>
+                <a class="btn btn-secondary" href="{% url 'contact' %}">Nous contacter</a>
+            </div>
+            <ul class="mini-proof">
+                <li><strong>24h</strong> pour la réservation</li>
+                <li><strong>1 240</strong> titres disponibles</li>
+                <li><strong>4.8/5</strong> avis lecteurs</li>
+            </ul>
+        </div>
+
+        <div class="hero-panel">
+            <div class="floating-card small-card">
+                <span>Lecture du mois</span>
+                <strong>Voyage au cœur du code</strong>
+            </div>
+            <div class="hero-visual">
+                <div class="book-stack">
+                    <div class="book book-one"></div>
+                    <div class="book book-two"></div>
+                    <div class="book book-three"></div>
+                </div>
+            </div>
+            <div class="floating-card large-card">
+                <span>Emprunts actifs</span>
+                <strong>326 livres</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Les fonctionnalités</span>
+                <h2>Tout l’essentiel, au même endroit.</h2>
+            </div>
+        </div>
+        <div class="chip-group" aria-label="Modules de BiblioLearn">
+            {% for module in modules %}
+            <span class="chip">{{ module }}</span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container stats-grid">
+        {% for item in stats %}
+        <article class="stat-card">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+            <small>{{ item.description }}</small>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">À la une</span>
+                <h2>Les coups de cœur du moment</h2>
+            </div>
+            <a href="{% url 'livres' %}" class="link-inline">Voir le catalogue</a>
+        </div>
+
+        <div class="book-grid">
+            {% for book in books %}
+            <article class="book-card">
+                <div class="cover-accent">{{ book.title|slice:':1' }}</div>
+                <div class="book-body">
+                    <span class="chip">{{ book.category }}</span>
+                    <h3>{{ book.title }}</h3>
+                    <p>{{ book.author }}</p>
+                    <div class="book-meta">
+                        <span>{{ book.rating }} ★</span>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section soft-bg">
+    <div class="container two-col">
+        <div>
+            <span class="eyebrow">Pourquoi nous choisir</span>
+            <h2>Une expérience pensée pour les lecteurs modernes.</h2>
+            <ul class="feature-list">
+                <li>Catalogue organisé par thèmes et niveaux.</li>
+                <li>Suivi clair des emprunts et des retours.</li>
+                <li>Recommandations personnalisées pour chaque lecteur.</li>
+                <li>Interface rapide, élégante et intuitive.</li>
+            </ul>
+        </div>
+
+        <div class="info-panel">
+            {% for act in activity %}
+            <div class="activity-item">
+                <span class="dot"></span>
+                <div>
+                    <h3>{{ act.title }}</h3>
+                    <p>{{ act.text }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

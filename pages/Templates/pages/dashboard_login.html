@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion admin | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="admin-login-section">
+    <div class="admin-login-card">
+        <a class="brand login-brand" href="{% url 'accueil' %}">
+            <span class="brand-mark">BL</span>
+            <span>BiblioLearn</span>
+        </a>
+        <span class="eyebrow">Accès réservé</span>
+        <h1>Connexion administrateur</h1>
+        <p>Connectez-vous avec un compte administrateur pour gérer la bibliothèque.</p>
+
+        <form method="post" class="dashboard-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% if form.non_field_errors %}
+            <div class="login-errors" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            <div class="dashboard-field">
+                <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="dashboard-field">
+                <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button class="btn btn-primary" type="submit">Se connecter</button>
+        </form>
+        <a class="login-back-link" href="{% url 'accueil' %}">Retour à l’accueil</a>
+    </div>
+</section>
+{% endblock %}

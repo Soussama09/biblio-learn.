@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Créer un compte | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="admin-login-section">
+    <div class="admin-login-card">
+        <span class="eyebrow">Rejoindre BiblioLearn</span>
+        <h1>Créer un compte lecteur</h1>
+        <p>Inscrivez-vous pour commander des livres et suivre vos commandes.</p>
+
+        <form method="post" class="dashboard-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% if form.non_field_errors %}
+            <div class="login-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+            <div class="dashboard-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-hint">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <button class="btn btn-primary" type="submit">Créer mon compte</button>
+        </form>
+        <p class="account-prompt">Vous avez déjà un compte ? <a href="{% url 'customer_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Se connecter</a></p>
+    </div>
+</section>
+{% endblock %}

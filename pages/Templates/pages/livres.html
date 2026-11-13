@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Catalogue | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container narrow">
+        <span class="eyebrow">Catalogue</span>
+        <h1>Explorez nos livres.</h1>
+        <p>Des titres soigneusement sélectionnés pour nourrir la curiosité et la culture.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="toolbar">
+            <div class="chip-group">
+                <a class="chip {% if not selected_category_id %}active{% endif %}" href="{% url 'livres' %}">Tous</a>
+                {% for category in categories %}
+                <a class="chip {% if category.id == selected_category_id %}active{% endif %}" href="{% url 'livres' %}?category={{ category.id }}">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+            <a href="{% url 'contact' %}" class="btn btn-secondary">Proposer un livre</a>
+        </div>
+
+        <div class="book-grid browse-grid">
+            {% for book in books %}
+            <article class="book-card large-card-book">
+                <div class="cover-accent alt">{{ book.title|slice:':1' }}</div>
+                <div class="book-body">
+                    <span class="chip">{{ book.category.name }}</span>
+                    <h3>{{ book.title }}</h3>
+                    <p>{{ book.author }}</p>
+                    <div class="book-meta">
+                        <span>{{ book.rating }} ★</span>
+                        <span class="status status-{{ book.status }}">{{ book.get_status_display }}</span>
+                    </div>
+                    {% if book.price > 0 %}
+                    <p class="book-price">{{ book.price|floatformat:2 }} MAD</p>
+                    {% if user.is_authenticated %}
+                    <a class="btn btn-primary order-book-button" href="{% url 'commander_livre' book.pk %}">Commander</a>
+                    {% else %}
+                    <a class="btn btn-secondary order-book-button" href="{% url 'commander_livre' book.pk %}">Connexion / inscription pour commander</a>
+                    {% endif %}
+                    {% else %}
+                    <p class="book-price unavailable-price">Prix bientôt disponible</p>
+                    {% endif %}
+                    {% if book.status == "disponible" %}
+                    {% if user.is_authenticated %}
+                    <a class="btn btn-secondary order-book-button" href="{% url 'emprunts' %}?book={{ book.pk }}">Demander un emprunt</a>
+                    {% else %}
+                    <a class="btn btn-secondary order-book-button" href="{% url 'customer_login' %}?next={% url 'emprunts' %}%3Fbook%3D{{ book.pk }}">Connexion pour emprunter</a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <p class="empty-state">Le catalogue est vide pour le moment. Ajoutez vos premiers livres depuis l’administration.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

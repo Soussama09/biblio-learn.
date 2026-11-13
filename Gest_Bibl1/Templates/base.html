@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BiblioLearn{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'pages/css/styles.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav-wrap">
+            <a href="{% url 'accueil' %}" class="brand">
+                <span class="brand-mark">BL</span>
+                <span>BiblioLearn</span>
+            </a>
+            <nav class="main-nav" aria-label="navigation principale">
+                <a href="{% url 'accueil' %}">Accueil</a>
+                <a href="{% url 'livres' %}">Livres</a>
+                <a href="{% url 'emprunts' %}">Emprunts</a>
+                <a href="{% url 'contact' %}">Contact</a>
+                {% if user.is_staff %}
+                <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'mes_commandes' %}">Mes commandes</a>
+                {% endif %}
+            </nav>
+            {% if user.is_staff %}
+            <a class="btn btn-primary" href="{% url 'dashboard_admin' %}">Dashboard admin</a>
+            {% elif user.is_authenticated %}
+            <a class="btn btn-primary" href="{% url 'mes_commandes' %}">Mes commandes</a>
+            <form method="post" action="{% url 'dashboard_logout' %}" class="nav-logout">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">Déconnexion</button>
+            </form>
+            {% else %}
+            <a class="btn btn-primary" href="{% url 'customer_login' %}">Connexion</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-wrap">
+            <div>
+                <h3>BiblioLearn</h3>
+                <p>La bibliothèque intelligente pour les lecteurs, les étudiants et les curieux.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'accueil' %}">Accueil</a>
+                <a href="{% url 'livres' %}">Catalogue</a>
+                <a href="{% url 'emprunts' %}">Emprunts</a>
+                {% if user.is_staff %}
+                <a href="{% url 'dashboard_admin' %}">Dashboard admin</a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'mes_commandes' %}">Mes commandes</a>
+                {% else %}
+                <a href="{% url 'customer_login' %}">Connexion</a>
+                <a href="{% url 'customer_signup' %}">Créer un compte</a>
+                <a href="{% url 'dashboard_login' %}">Connexion admin</a>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container narrow">
+        <span class="eyebrow">Contact</span>
+        <h1>Une question ? Un projet ?</h1>
+        <p>Nous sommes à votre écoute pour accompagner les lecteurs et les équipes culturelles.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container contact-grid">
+        <div class="contact-card">
+            <h3>Envoyer un message</h3>
+            <form class="contact-form">
+                <div class="field-row">
+                    <label>Nom</label>
+                    <input type="text" placeholder="Votre nom" value="">
+                </div>
+                <div class="field-row">
+                    <label>Email</label>
+                    <input type="email" placeholder="vous@example.com" value="">
+                </div>
+                <div class="field-row">
+                    <label>Message</label>
+                    <textarea rows="5" placeholder="Décrivez votre besoin..."></textarea>
+                </div>
+                <button type="button" class="btn btn-primary">Envoyer</button>
+            </form>
+        </div>
+
+        <div class="contact-info">
+            <div class="info-box">
+                <h3>Informations</h3>
+                <p><strong>Adresse :</strong> Azli AASSIMA, Marrakech</p>
+                <p><strong>Email :</strong> oussamasabih11@gmail.com</p>
+                <p><strong>Téléphone :</strong> +212 7 01 80 34 47</p>
+            </div>
+            <div class="info-box">
+                <h3>Horaires</h3>
+                <p>Lun - Sam : 9h00 - 18h00</p>
+                <p>Dimanche : Fermé</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

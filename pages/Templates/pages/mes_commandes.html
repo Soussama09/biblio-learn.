@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes commandes | BiblioLearn{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container narrow">
+        <span class="eyebrow">Espace lecteur</span>
+        <h1>Mes commandes</h1>
+        <p>Suivez l’état de vos commandes et de leur paiement.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if messages %}
+        <div class="dashboard-messages" role="status">
+            {% for message in messages %}
+            <p class="dashboard-message">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="table-card-wrap">
+            <table class="data-table orders-customer-table">
+                <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Livre</th>
+                        <th>Quantité</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th>Paiement</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.book.title }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>{{ order.total_price|floatformat:2 }} MAD</td>
+                        <td><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                        <td><span class="status status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="dashboard-empty">Vous n’avez pas encore de commande. <a href="{% url 'livres' %}">Explorer le catalogue</a>.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
