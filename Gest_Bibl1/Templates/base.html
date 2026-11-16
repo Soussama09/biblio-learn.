@@ -22,11 +22,6 @@
                 <a href="{% url 'livres' %}">Livres</a>
                 <a href="{% url 'emprunts' %}">Emprunts</a>
                 <a href="{% url 'contact' %}">Contact</a>
-                {% if user.is_staff %}
-                <a href="{% url 'dashboard_admin' %}">Dashboard</a>
-                {% elif user.is_authenticated %}
-                <a href="{% url 'mes_commandes' %}">Mes commandes</a>
-                {% endif %}
             </nav>
             {% if user.is_staff %}
             <a class="btn btn-primary" href="{% url 'dashboard_admin' %}">Dashboard admin</a>

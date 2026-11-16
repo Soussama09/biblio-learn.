@@ -171,10 +171,10 @@ class BookDashboardTests(TestCase):
         )
 
         self.assertRedirects(response, reverse("dashboard_admin"))
-        self.assertEqual(
-            self.client.get(reverse("dashboard_admin")).status_code,
-            200,
-        )
+        dashboard_response = self.client.get(reverse("dashboard_admin"))
+        self.assertEqual(dashboard_response.status_code, 200)
+        header = dashboard_response.content.decode().split("</header>", 1)[0]
+        self.assertEqual(header.count(f'href="{reverse("dashboard_admin")}"'), 1)
 
 
 class CustomerOrderTests(TestCase):
@@ -256,6 +256,8 @@ class CustomerOrderTests(TestCase):
 
         self.assertContains(response, "Livre à commander")
         self.assertNotContains(response, "Commande privée")
+        header = response.content.decode().split("</header>", 1)[0]
+        self.assertEqual(header.count(f'href="{reverse("mes_commandes")}"'), 1)
 
     def test_staff_dashboard_displays_customer_orders(self):
         customer = get_user_model().objects.create_user(
